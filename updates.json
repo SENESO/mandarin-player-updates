@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "channels": {
+    "stable": null,
+    "beta": null
+  }
+}
