@@ -1,23 +1,48 @@
-# Mandarin public metadata
+# Mandarin public news, updates and releases
 
-This repository contains public news and update metadata only. It contains no application source code, APKs, credentials, private repository history, or private release details.
+This is the single public home for Mandarin developer news, reserved update metadata, and future GitHub Releases/downloads. It contains no application source code. Currently it contains only metadata and documentation; no release or APK is published.
 
 Base URL: `https://raw.githubusercontent.com/SENESO/mandarin-player-updates/main/`
 
-## News
+## Developer news
 
-`metadata.json` is the public news index consumed by Mandarin. An empty array means there are no published announcements. There is no fallback to another project's news.
+[`metadata.json`](metadata.json) is the news index, currently `[]` (no published announcements). Its contract is [`metadata.schema.json`](metadata.schema.json). The current local news reader points to this repository's raw `metadata.json` and `content/<id>` endpoints; this does not establish that a distributed application build has been updated or tested.
 
-Each future news entry uses these fields: `id`, `Title`, `Description`, `ImageURL` (an array of public image URLs), `Important` (boolean), `Author`, and `Date` (Unix timestamp in milliseconds). Its Markdown article is served at `content/<id>`, using the exact same identifier. Publish only reviewed public announcements. Use Arabic and English text as appropriate; never put tokens or private links in news.
+Field names are case-sensitive:
 
-## Update metadata
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | string | Safe article filename, used verbatim in `content/<id>`; required by the publishing contract. |
+| `Title` | string | Required public headline. |
+| `Description` | string | Optional summary; defaults to empty text. |
+| `ImageURL` | string, array of strings, or null | Optional HTTPS public image URLs; an array is preferred. |
+| `Important` | boolean | Optional highlight flag; defaults to false. |
+| `Author` | string | Required public display name, not private account details. |
+| `Date` | integer | Unix timestamp in milliseconds; publish an explicit value. |
 
-`updates.json` is a reserved, inactive metadata manifest. `enabled: false` and null channels advertise no available update. This file does not enable polling or installation in any app. The current application updater does not consume this manifest yet; integration and a versioned release contract require their own validation.
+For every published entry, add its reviewed Markdown article at `content/<id>` with exactly the same identifier. The client fetches article content as text. Use stable, unique identifiers matching the schema; do not include slashes, dot segments or URL escapes. An empty index needs no content directory. The publishing schema preserves the current client's field casing and array format, while requiring explicit article identifiers and dates rather than relying on permissive client defaults.
 
-No public APK or active update will be added until startup/device validation and complete end-to-end update checks pass. Any future binary distribution must provide the matching GPL source archive in a separate distribution channel; no application source belongs in this metadata repository.
+## Update metadata: disabled
+
+[`updates.json`](updates.json) is a reserved manifest, governed by [`updates.schema.json`](updates.schema.json):
+
+- `schemaVersion`: `1`.
+- `enabled`: `false`.
+- `channels.stable`: `null`.
+- `channels.beta`: `null`.
+
+Version 1 defines only the inactive state: it advertises no release, version, download URL or installation instruction. An active-release contract needs a separately reviewed schema revision. Creating or editing this file does not activate application updates.
+
+**The current updater does not consume `updates.json`.** It uses GitHub Releases API and currently trusts a different distribution repository. Integrating this single public repository therefore still requires a private application change: align `Updater.ReleaseRepository`, release-page links and trust-policy tests to `SENESO/mandarin-player-updates`. Preserve APK package, version, signer and URL validation and the disabled-by-default build gate. Alternatively, a manifest reader would require a versioned active-release schema and fail-closed validation; that reader does not exist yet. No application code is published here.
+
+## Future releases: this same repository
+
+The intended public release home is [GitHub Releases](https://github.com/SENESO/mandarin-player-updates/releases). No release is published and updates remain disabled. Do not publish APKs or enable update polling until real-device startup and complete end-to-end update validation pass, including package identity, upgrade compatibility and signing checks.
+
+Before publishing any GPL-covered binary, make its complete matching Corresponding Source publicly accessible **separately** and link it clearly from that release. Keep application source and source archives out of this repository and its release assets. GitHub's automatically generated archives of this metadata repository are not the application's Corresponding Source. The separate source must match the binary and include the materials required by the applicable GPL obligations; a private development link is not sufficient.
+
+Publish only reviewed public announcements and release information. Never commit tokens, credentials, private account details, private draft information, application source or unreviewed binaries. There are no automated publication workflows here.
 
 ## بالعربية
 
-هذا المستودع العام مخصص لبيانات الأخبار والتحديثات فقط، ولا يحتوي على كود التطبيق أو ملفات APK أو توكنات أو تاريخ التطوير أو بيانات إصدارات خاصة.
-
-ملف `metadata.json` هو فهرس الأخبار، وهو فارغ إلى أن تُنشر أخبار فعلية معتمدة. ملف `updates.json` محجوز للتكامل لاحقًا ومعطّل؛ إنشاؤه لا يفعّل التحديث التلقائي في التطبيق. يظل مستودع التطوير خاصًا، ولا يُنشر APK أو يُفعّل التحديث قبل نجاح اختبارات التشغيل على الأجهزة ومسار التحديث الكامل. أي توزيع لاحق للملفات التنفيذية يجب أن يرافقه أرشيف المصدر المطابق في قناة توزيع منفصلة وفق GPL.
+مستودع عام واحد للأخبار وبيانات التحديثات وإصدارات التطبيق لاحقًا، من غير كود التطبيق. حاليًا الأخبار فارغة وبيانات التحديث معطّلة، ولم يُنشر أي APK أو إصدار. قارئ الأخبار المحلي يشير إلى هذا المستودع، لكن ربط محدّث التطبيق بإصدارات نفس المستودع يحتاج تعديلًا واختبارًا داخل مشروع التطوير الخاص؛ ملف `updates.json` ليس مدعومًا حاليًا من المحدّث. قبل نشر أي ملف تنفيذي، يجب إتاحة المصدر المطابق علنًا في مكان منفصل وربطه بوضوح من صفحة الإصدار وفق GPL، مع بقاء كود التطبيق خارج هذا المستودع.
