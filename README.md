@@ -1,31 +1,52 @@
-# Mandarin public channel
+# Mandarin public news, updates and releases
 
-One public repository for Mandarin news, update approvals, and future approved APK releases. No application source code, credentials, private history, or private release data belongs here. No APK or public release has been published yet.
+This is the single public home for Mandarin developer news, reserved update metadata, and future GitHub Releases/downloads. It contains no application source code. Currently it contains only metadata and documentation; no release or APK is published.
 
 Base URL: `https://raw.githubusercontent.com/SENESO/mandarin-player-updates/main/`
 
-## News
+## Developer news
 
-`metadata.json` is the news index. Its current empty array means there are no published announcements; clients must not fabricate sample news or fall back to another project's news.
+[`metadata.json`](metadata.json) is the news index, currently `[]` (no published announcements). Its contract is [`metadata.schema.json`](metadata.schema.json). The current local news reader points to this repository's raw `metadata.json` and `content/<id>` endpoints; this does not establish that a distributed application build has been updated or tested.
 
-Future entries use `id`, `Title`, `Description`, `ImageURL` (an array of public image URLs), `Important` (boolean), `Author`, and `Date` (Unix milliseconds). Markdown articles use `content/<id>` with the exact same identifier. Publish only reviewed public announcements, in Arabic and English as appropriate.
+Field names are case-sensitive:
 
-## Update approval contract
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `id` | string | Safe article filename, used verbatim in `content/<id>`; required by the publishing contract. |
+| `Title` | string | Required public headline. |
+| `Description` | string | Optional summary; defaults to empty text. |
+| `ImageURL` | string, array of strings, or null | Optional HTTPS public image URLs; an array is preferred. |
+| `Important` | boolean | Optional highlight flag; defaults to false. |
+| `Author` | string | Required public display name, not private account details. |
+| `Date` | integer | Unix timestamp in milliseconds; publish an explicit value. |
 
-`updates.json` is currently **disabled**: `schemaVersion: 1`, `enabled: false`, and null stable/beta channels. This advertises no update and must not trigger a download.
+For every published entry, add its reviewed Markdown article at `content/<id>` with exactly the same identifier. The client fetches article content as text. Use stable, unique identifiers matching the schema; do not include slashes, dot segments or URL escapes. An empty index needs no content directory. The publishing schema preserves the current client's field casing and array format, while requiring explicit article identifiers and dates rather than relying on permissive client defaults.
 
-After all release gates pass, an approved manifest may set `enabled: true` and use `channels.stable` and/or `channels.beta` objects with `tag` and `sourceArchiveUrl`. A channel may remain null. The matching GPL source archive must be publicly accessible at a separate location; it must not be the private development repository or this combined channel. Validate that its contents match the APK/tag before activating the channel.
+## Update metadata: disabled
 
-The approved tag is resolved through this same repository's GitHub Releases API. Downloads require the exact build-specific APK asset name, uploaded state, valid size/MIME, and GitHub's SHA-256 asset digest. Drafts, arbitrary download URLs, missing integrity data, and another repository are not update sources.
+[`updates.json`](updates.json) is a reserved manifest, governed by [`updates.schema.json`](updates.schema.json):
 
-Current development builds include manual update capability. Startup/background polling stays separately gated, and no download or installation should happen automatically. Android source-install permission and the user's system installer confirmation remain required.
+- `schemaVersion`: `1`.
+- `enabled`: `false`.
+- `channels.stable`: `null`.
+- `channels.beta`: `null`.
 
-Do not publish a real APK or enable the manifest until startup/device validation, full release checks, matching-source verification, and the end-to-end update gates pass. Local/mock tests do not prove a completed real Android upgrade.
+Version 1 defines only the inactive state: it advertises no release, version, download URL or installation instruction. An active-release contract needs a separately reviewed schema revision. Creating or editing this file does not activate application updates.
+
+The current development updater reads this manifest as an approval gate. **Public schema v1 remains inactive-only**; it cannot approve downloads, even if someone merely changes its `enabled` value. A separately reviewed active contract uses `schemaVersion: 2`, `enabled: true`, and stable/beta channel objects containing `tag` and `sourceArchiveUrl`. A channel may remain null. The matching GPL archive must be publicly accessible in a separate source location, never this repository or a private development URL. Source correspondence must be verified before activation.
+
+The updater selects only that approved tag from this same repository's GitHub Releases API and requires an exact build-specific uploaded APK asset, supported MIME, valid size and SHA-256 digest. Package identity, a strictly newer version and matching non-debug signer are checked before Android's user-confirmed installer. Missing approval/assets do not fall back to a release web page or another repository.
+
+Manual update capability is implemented in the current development version. Startup/background checks stay behind a separate default-disabled build gate pending device validation. This is not evidence that a distributed build or real upgrade has passed end-to-end checks. No automatic download or silent installation is enabled. The v2 publishing schema still needs review before any active public payload is introduced; no application code is published here.
+
+## Future releases: this same repository
+
+The intended public release home is [GitHub Releases](https://github.com/SENESO/mandarin-player-updates/releases). No release is published and updates remain disabled. Do not publish APKs or enable update polling until real-device startup and complete end-to-end update validation pass, including package identity, upgrade compatibility and signing checks.
+
+Before publishing any GPL-covered binary, make its complete matching Corresponding Source publicly accessible **separately** and link it clearly from that release. Keep application source and source archives out of this repository and its release assets. GitHub's automatically generated archives of this metadata repository are not the application's Corresponding Source. The separate source must match the binary and include the materials required by the applicable GPL obligations; a private development link is not sufficient.
+
+Publish only reviewed public announcements and release information. Never commit tokens, credentials, private account details, private draft information, application source or unreviewed binaries. There are no automated publication workflows here.
 
 ## بالعربية
 
-مستودع عام واحد للأخبار واعتماد التحديثات والإصدارات المستقبلية. لا يحتوي على كود التطبيق أو توكنات أو تاريخ التطوير أو بيانات إصدارات خاصة. لم يُنشر APK أو إصدار عام.
-
-فهرس الأخبار `metadata.json` فارغ حاليًا، وملف `updates.json` معطّل وقناتاه فارغتان؛ لذلك لا يوجد تحديث متاح للتنزيل. يدعم عقد التحديث قناتي `stable` و`beta`، ولكل قناة مفعّلة `tag` ورابط `sourceArchiveUrl` عام لأرشيف GPL المطابق في مكان منفصل. ملفات APK المعتمدة لاحقًا تستخدم Releases في نفس المستودع، ويجري التحقق من الحجم وSHA-256 وهوية التطبيق والنسخة والتوقيع قبل تسليمها لمثبّت Android.
-
-دعم الفحص اليدوي موجود في التطوير الحالي، بينما يظل فحص الإقلاع والخلفية خلف بوابة مستقلة. لا تُفعّل القناة أو يُنشر APK قبل نجاح اختبارات الأجهزة والتحديث الكامل والتحقق من المصدر المطابق؛ ولا يوجد تنزيل أو تثبيت صامت.
+مستودع عام واحد للأخبار وبيانات التحديثات وإصدارات التطبيق لاحقًا، من غير كود التطبيق. حاليًا الأخبار فارغة وبيانات التحديث معطّلة، ولم يُنشر أي APK أو إصدار. قارئ الأخبار المحلي يشير إلى هذا المستودع، ودعم المحدّث في التطوير الحالي يقرأ ملف الاعتماد أيضًا. يظل مخطط v1 معطّلًا فقط؛ عقد التفعيل المستقبلي v2 يحتاج مراجعة ونشر مخططه بعد اجتياز بوابات الأجهزة والتحديث الكامل. قدرة الفحص اليدوي موجودة، بينما فحص الإقلاع والخلفية خلف بوابة منفصلة مقفولة افتراضيًا. لا يُنشر APK أو تُفعّل القناة قبل التحقق الفعلي، ولا يوجد تنزيل أو تثبيت صامت. المصدر المطابق يُتاح علنًا في مكان منفصل ويرتبط بالإصدار وفق GPL، مع بقاء كود التطبيق خارج هذا المستودع.

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mandarin reserved inactive update manifest v1",
+  "description": "Version 1 deliberately defines no active releases and is consumed as an inactive approval gate. An active v2 contract requires a separately reviewed publishing schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "enabled", "channels"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "enabled": {"const": false},
+    "channels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stable", "beta"],
+      "properties": {
+        "stable": {"type": "null"},
+        "beta": {"type": "null"}
+      }
+    }
+  }
+}

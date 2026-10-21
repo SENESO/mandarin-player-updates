@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mandarin public news index",
+  "description": "Publishing contract for metadata.json. Each id has a matching reviewed text article at content/<id>.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "Title", "Author", "Date"],
+    "properties": {
+      "id": {"type": "string", "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*(?:\\.md)?$"},
+      "Title": {"type": "string", "minLength": 1},
+      "Description": {"type": "string", "default": ""},
+      "ImageURL": {
+        "oneOf": [
+          {"$ref": "#/$defs/httpsImage"},
+          {"type": "array", "items": {"$ref": "#/$defs/httpsImage"}},
+          {"type": "null"}
+        ],
+        "default": []
+      },
+      "Important": {"type": "boolean", "default": false},
+      "Author": {"type": "string", "minLength": 1},
+      "Date": {"type": "integer", "minimum": 0, "maximum": 9223372036854775807}
+    }
+  },
+  "$defs": {
+    "httpsImage": {"type": "string", "format": "uri", "pattern": "^https://[^\\s]+$"}
+  }
+}
